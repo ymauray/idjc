@@ -1,15 +1,92 @@
-name: my-snap-name # you probably want to 'snapcraft register <name>'
-version: '0.1' # just for humans, typically '1.2+git' or '1.3.2'
-summary: Single-line elevator pitch for your amazing snap # 79 char long summary
+name: idjc
+version: 0.8.17
+summary: A tool to live stream radio shows / podcasts to Shoutcast or Icecast.
 description: |
-  This is my-snap's description. You have a paragraph or two to tell the
-  most important story about your snap. Keep it under 100 words though,
-  we live in tweetspace and your description wants to look good in the snap
-  store.
-
-confinement: devmode # use 'strict' once you have the right plugs and slots
-
+  Internet DJ Console is a project started in March 2005 to provide a powerful
+  yet easy to use source-client for individuals interested in streaming live
+  radio shows over the Internet using Shoutcast or Icecast servers.
+  Because of the large number of streaming applications that already existed
+  but did little more than stream a pair of audio channels or a fixed playlist,
+  it was decided that IDJC would be the opposite and simulate audio hardware to
+  cut down the expense of creating a home studio.
+  In addition to providing a large number of show production features, this
+  software has been written with the aim of producing the best possible
+  experience for the listeners and DJ alike. To that end features like VoIP
+  integration were conceived of from the very start resulting in the choice of
+  Jack Audio Connection Kit to base the audio.
+  This has afforded IDJC audio processing capabilities that were they built in
+  would be considered excessive. Enjoy integration with powerful programs such
+  as the well known Skype, Jack Rack (offering audio sound effects plugins),
+  Jamin (the powerful audio compressor/equalizer), and many more.
+  Fortunately IDJCs power does not come at the expense of a well organized user
+  interface, nor have requests for features been permitted to diminish the
+  application's intuitive feel yet throughout development the main goals have
+  always been that of stability and audio quality.
+base: core18
+confinement: devmode
+grade: stable
 parts:
-  my-part:
-    # See 'snapcraft plugins'
-    plugin: nil
+  libshout-idjc:
+    plugin: autotools
+    install-via: destdir
+    source-type: tar
+    source: https://downloads.sourceforge.net/project/libshoutidjc.idjc.p/libshout-idjc-2.4.2.tar.gz
+    build-packages:
+      - libvorbis-dev
+      - libtheora-dev
+      - libspeex-dev
+  idjc:
+    plugin: autotools
+    install-via: destdir
+    configflags:
+      - PYTHON=/usr/bin/python
+      - "--prefix=/snap/${SNAPCRAFT_PROJECT_NAME}/current"
+    source-type: tar
+    source: https://downloads.sourceforge.net/project/idjc/idjc-0.8.17.tar.gz
+    after:
+      - libshout-idjc
+    build-packages:
+      - build-essential
+      - libjack-dev
+      - libsamplerate0-dev
+      - libsndfile1-dev
+      - libglib2.0-dev
+      - python-gtk2-dev
+      - libavcodec-dev
+      - libavformat-dev
+      - libswscale-dev
+      - libvorbis-dev
+      - libmpg123-dev
+      - libtwolame-dev
+      - libmp3lame-dev
+      - libflac-dev
+      - python-mutagen
+      - libspeex-dev
+      - libopus-dev
+    stage-packages:
+      - libjack0
+      - libsamplerate0
+      - libsndfile1
+      - libglib2.0-0
+      - python-gtk2
+      - libavcodec57
+      - libavformat57
+      - libswscale4
+      - libvorbis0a
+      - libmpg123-0
+      - libtwolame0
+      - libmp3lame0
+      - libflac8
+      - libspeex1
+      - libopus0
+    organize:
+      snap/${SNAPCRAFT_PROJECT_NAME}/current/bin: bin
+      snap/${SNAPCRAFT_PROJECT_NAME}/current/lib: lib
+      snap/${SNAPCRAFT_PROJECT_NAME}/current/share: share
+apps:
+  idjc:
+    command: bin/idjc
+    plugs: 
+      - jack1
+      - home
+      - network
